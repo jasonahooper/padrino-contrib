@@ -60,7 +60,7 @@ module Padrino
             next
 
           # Root path "/" needs special treatment, as it doesn't contain any language parameter.
-          elsif request.path_info =~ /^\/?$/
+        elsif request.path_info =~ /^\/?$/ || (defined? settings.locale_no_not_found && settings.locale_no_not_found)
             # Try to guess the preferred language from the http header
             for browser_locale in (request.env['HTTP_ACCEPT_LANGUAGE'] || '').split(",")
               locale = browser_locale.split(";").first.downcase.sub('-', '_')
@@ -69,8 +69,8 @@ module Padrino
                 break
               end
             end
-            # Then redirect from "/" to "/:lang" to match the new routing urls
-            redirect url("/#{I18n.locale.to_s}/", false)
+            # Then redirect from "{request.fullpath}" to "/:lang{request.fullpath}" to match the new routing urls
+            redirect url("/#{I18n.locale.to_s}#{request.fullpath}", false)
 
           # Return 404 not found for everything else
           else
